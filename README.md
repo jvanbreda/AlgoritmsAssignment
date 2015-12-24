@@ -1,1 +1,1 @@
-# AlgoritmsAssignment
+# AlgorithmsAssignment

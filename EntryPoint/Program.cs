@@ -34,7 +34,13 @@ namespace EntryPoint {
         }
 
         private static IEnumerable<Vector2> SortSpecialBuildingsByDistance(Vector2 house, IEnumerable<Vector2> specialBuildings) {
-            return specialBuildings.OrderBy(v => Vector2.Distance(v, house));
+            int length = 0;
+            foreach (Vector2 vector in specialBuildings) {
+                length++;
+            }
+            MergeSort(specialBuildings, house, 0, length);
+            //return specialBuildings.OrderBy(v => Vector2.Distance(v, house));
+            return specialBuildings;
         }
 
         private static IEnumerable<IEnumerable<Vector2>> FindSpecialBuildingsWithinDistanceFromHouse(
@@ -74,6 +80,44 @@ namespace EntryPoint {
                 result.Add(fakeBestPath);
             }
             return result;
+        }
+
+        private static void MergeSort(IEnumerable<Vector2> specialBuildings, Vector2 house, int beginIndex, int endIndex) {
+            int middleIndex;
+            if (beginIndex < endIndex) {
+                middleIndex = (beginIndex + endIndex) / 2;
+                MergeSort(specialBuildings, house, beginIndex, middleIndex);
+                MergeSort(specialBuildings, house, middleIndex + 1, endIndex);
+                Merge(specialBuildings, house, beginIndex, middleIndex, endIndex);
+            } 
+        }
+
+        private static void Merge(IEnumerable<Vector2> specialBuildings, Vector2 house, int beginIndex, int middleIndex, int endIndex) {
+            List<Vector2> tempArray = new List<Vector2>();
+
+            int pointerLeft = beginIndex;
+            int pointerRight = middleIndex + 1;
+
+            while (pointerLeft <= middleIndex && pointerRight <= endIndex) {
+                double distanceLeft = Math.Sqrt(Math.Pow((house.X) - (specialBuildings.ElementAt(pointerLeft).X), 2) + Math.Pow((house.Y) - (specialBuildings.ElementAt(pointerLeft).Y), 2));
+                double distanceRight = Math.Sqrt(Math.Pow((house.X) - (specialBuildings.ElementAt(pointerLeft).X), 2) + Math.Pow((house.Y) - (specialBuildings.ElementAt(pointerLeft).Y), 2));
+                if (distanceLeft <= distanceRight) {
+                    tempArray.Add(specialBuildings.ElementAt(pointerLeft++));
+                }
+                else {
+                    tempArray.Add(specialBuildings.ElementAt(pointerRight++));
+                }
+            }
+
+            while (pointerLeft < middleIndex) {
+                tempArray.Add(specialBuildings.ElementAt(pointerLeft++));
+            }
+
+            while (pointerRight < endIndex) {
+                tempArray.Add(specialBuildings.ElementAt(pointerRight++));
+            }
+
+            specialBuildings = tempArray;
         }
     }
 #endif

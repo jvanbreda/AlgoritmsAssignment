@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <PipelineBuildEvent xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
-  <SourceFile>C:/Users/Jesse/Desktop/INFDEV02-6A - Practical assignment/EntryPoint/Content/numberingFont.spritefont</SourceFile>
+  <SourceFile>C:/Users/Jesse/Documents/GitHub/AlgoritmsAssignment/EntryPoint/Content/numberingFont.spritefont</SourceFile>
   <SourceTime>2015-12-01T13:05:42.1924626+01:00</SourceTime>
-  <DestFile>C:/Users/Jesse/Desktop/INFDEV02-6A - Practical assignment/EntryPoint/Content/bin/Windows/numberingFont.xnb</DestFile>
-  <DestTime>2015-12-01T13:13:26.849586+01:00</DestTime>
+  <DestFile>C:/Users/Jesse/Documents/GitHub/AlgoritmsAssignment/EntryPoint/Content/bin/Windows/numberingFont.xnb</DestFile>
+  <DestTime>2015-12-24T11:53:11.8036162+01:00</DestTime>
   <Importer>FontDescriptionImporter</Importer>
   <ImporterTime>2015-04-29T19:14:44+02:00</ImporterTime>
   <Processor>FontDescriptionProcessor</Processor>

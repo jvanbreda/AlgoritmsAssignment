@@ -6,6 +6,7 @@ using System.Linq;
 namespace EntryPoint {
 #if WINDOWS || LINUX
     public static class Program {
+        static List<Vector2> specialBuildingsList;
         [STAThread]
         static void Main() {
             var fullscreen = false;
@@ -34,13 +35,9 @@ namespace EntryPoint {
         }
 
         private static IEnumerable<Vector2> SortSpecialBuildingsByDistance(Vector2 house, IEnumerable<Vector2> specialBuildings) {
-            int length = 0;
-            foreach (Vector2 vector in specialBuildings) {
-                length++;
-            }
-            MergeSort(specialBuildings, house, 0, length);
-            //return specialBuildings.OrderBy(v => Vector2.Distance(v, house));
-            return specialBuildings;
+            specialBuildingsList = specialBuildings.ToList();
+            MergeSort(specialBuildingsList, house, 0, specialBuildingsList.Count -1);
+            return specialBuildingsList;
         }
 
         private static IEnumerable<IEnumerable<Vector2>> FindSpecialBuildingsWithinDistanceFromHouse(
@@ -82,42 +79,48 @@ namespace EntryPoint {
             return result;
         }
 
-        private static void MergeSort(IEnumerable<Vector2> specialBuildings, Vector2 house, int beginIndex, int endIndex) {
+        private static void MergeSort(List<Vector2> specialBuildingsList, Vector2 house, int beginIndex, int endIndex) {
             int middleIndex;
             if (beginIndex < endIndex) {
                 middleIndex = (beginIndex + endIndex) / 2;
-                MergeSort(specialBuildings, house, beginIndex, middleIndex);
-                MergeSort(specialBuildings, house, middleIndex + 1, endIndex);
-                Merge(specialBuildings, house, beginIndex, middleIndex, endIndex);
-            } 
+                MergeSort(specialBuildingsList, house, beginIndex, middleIndex);
+                MergeSort(specialBuildingsList, house, middleIndex + 1, endIndex);
+                Merge(specialBuildingsList, house, beginIndex, middleIndex, endIndex);
+            }
         }
 
-        private static void Merge(IEnumerable<Vector2> specialBuildings, Vector2 house, int beginIndex, int middleIndex, int endIndex) {
-            List<Vector2> tempArray = new List<Vector2>();
+        private static void Merge(List<Vector2> specialBuildingsList, Vector2 house, int beginIndex, int middleIndex, int endIndex) {
+            Vector2[] tempArray = new Vector2[endIndex - beginIndex + 1];
 
             int pointerLeft = beginIndex;
+            int tempPointer = 0;
             int pointerRight = middleIndex + 1;
 
             while (pointerLeft <= middleIndex && pointerRight <= endIndex) {
-                double distanceLeft = Math.Sqrt(Math.Pow((house.X) - (specialBuildings.ElementAt(pointerLeft).X), 2) + Math.Pow((house.Y) - (specialBuildings.ElementAt(pointerLeft).Y), 2));
-                double distanceRight = Math.Sqrt(Math.Pow((house.X) - (specialBuildings.ElementAt(pointerLeft).X), 2) + Math.Pow((house.Y) - (specialBuildings.ElementAt(pointerLeft).Y), 2));
+                double distanceLeft = Vector2.Distance(house, specialBuildingsList[pointerLeft]);
+                double distanceRight = Vector2.Distance(house, specialBuildingsList[pointerRight]);
+                
                 if (distanceLeft <= distanceRight) {
-                    tempArray.Add(specialBuildings.ElementAt(pointerLeft++));
+                    tempArray[tempPointer++] = specialBuildingsList[pointerLeft++];
                 }
                 else {
-                    tempArray.Add(specialBuildings.ElementAt(pointerRight++));
+                    tempArray[tempPointer++] = specialBuildingsList[pointerRight++];
                 }
             }
 
-            while (pointerLeft < middleIndex) {
-                tempArray.Add(specialBuildings.ElementAt(pointerLeft++));
+            while (pointerLeft <= middleIndex) {
+                tempArray[tempPointer++] = specialBuildingsList[pointerLeft++];
             }
 
-            while (pointerRight < endIndex) {
-                tempArray.Add(specialBuildings.ElementAt(pointerRight++));
+            while (pointerRight <= endIndex) {
+                tempArray[tempPointer++] = specialBuildingsList[pointerRight++];
             }
 
-            specialBuildings = tempArray;
+            tempPointer = 0;
+            pointerLeft = beginIndex;
+            while (tempPointer < tempArray.Length && pointerLeft <= endIndex) {
+                specialBuildingsList[pointerLeft++] = tempArray[tempPointer++];
+            }
         }
     }
 #endif

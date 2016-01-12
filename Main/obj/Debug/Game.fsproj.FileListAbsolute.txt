@@ -52,3 +52,30 @@ C:\Users\Jesse\Desktop\INFDEV02-6A - Practical assignment\Main\bin\Debug\SharpDX
 C:\Users\Jesse\Desktop\INFDEV02-6A - Practical assignment\Main\bin\Debug\MonoGame.Framework.xml
 C:\Users\Jesse\Desktop\INFDEV02-6A - Practical assignment\Main\bin\Debug\SharpDX.RawInput.xml
 C:\Users\Jesse\Desktop\INFDEV02-6A - Practical assignment\Main\bin\Debug\SharpDX.Direct3D9.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\Main.XML
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\Game.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\Game.pdb
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\FSharp.Core.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\MonoGame.Framework.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.MediaFoundation.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.XAudio2.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.Direct3D11.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.DXGI.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.Direct2D1.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.XInput.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.RawInput.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.Direct3D9.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\MonoGame.Framework.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\FSharp.Core.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.MediaFoundation.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.XAudio2.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.Direct3D11.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.DXGI.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.Direct2D1.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.XInput.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.RawInput.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\bin\Debug\SharpDX.Direct3D9.xml
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\obj\Debug\Game.dll
+C:\Users\Jesse\Documents\GitHub\AlgoritmsAssignment\Main\obj\Debug\Game.pdb

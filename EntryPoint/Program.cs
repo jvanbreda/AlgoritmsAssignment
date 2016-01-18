@@ -43,19 +43,12 @@ namespace EntryPoint {
 
         private static IEnumerable<IEnumerable<Vector2>> FindSpecialBuildingsWithinDistanceFromHouse(
           IEnumerable<Vector2> specialBuildings,IEnumerable<Tuple<Vector2, float>> housesAndDistances) {
-            //return
-            //    from h in housesAndDistances
-            //    select
-            //      from s in specialBuildings
-            //      where Vector2.Distance(h.Item1, s) <= h.Item2
-            //      select s;
             result = new List<List<Vector2>>();
             KdTree tree = new KdTree();
             foreach(Vector2 v in specialBuildings) {
                 tree.Insert(v);
             }
-            List<Vector2> allNodes = tree.preOrderTraversal(tree.root);
-            Console.WriteLine(allNodes.First().X + " " + allNodes.First().Y);
+            List<Vector2> allNodes = tree.PreOrderTraversal(tree.root);
             foreach(Tuple<Vector2, float> house in housesAndDistances) {
                 List<Vector2> buildingsInRange = new List<Vector2>();
                 foreach (Vector2 specialBuilding in allNodes) {
@@ -63,10 +56,8 @@ namespace EntryPoint {
                         buildingsInRange.Add(specialBuilding);
                     }
                 }
-                Console.WriteLine("BuildingInRange count " + buildingsInRange.Count());
                 result.Add(buildingsInRange);
             }
-            Console.WriteLine("result count: "+ result.Count());
             return result;
         }
 

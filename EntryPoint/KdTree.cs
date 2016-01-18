@@ -32,7 +32,7 @@ namespace EntryPoint {
             
         }
 
-        public List<Vector2> preOrderTraversal(Node n) {
+        public List<Vector2> PreOrderTraversal(Node n) {
             if (n == null) {
                 return null;
             }

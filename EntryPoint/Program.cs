@@ -7,6 +7,7 @@ namespace EntryPoint {
 #if WINDOWS || LINUX
     public static class Program {
         static List<Vector2> specialBuildingsList;
+        static List<List<Vector2>> result;
         [STAThread]
         static void Main() {
             var fullscreen = false;
@@ -41,26 +42,91 @@ namespace EntryPoint {
         }
 
         private static IEnumerable<IEnumerable<Vector2>> FindSpecialBuildingsWithinDistanceFromHouse(
-          IEnumerable<Vector2> specialBuildings,
-          IEnumerable<Tuple<Vector2, float>> housesAndDistances) {
-            return
-                from h in housesAndDistances
-                select
-                  from s in specialBuildings
-                  where Vector2.Distance(h.Item1, s) <= h.Item2
-                  select s;
+          IEnumerable<Vector2> specialBuildings,IEnumerable<Tuple<Vector2, float>> housesAndDistances) {
+            //return
+            //    from h in housesAndDistances
+            //    select
+            //      from s in specialBuildings
+            //      where Vector2.Distance(h.Item1, s) <= h.Item2
+            //      select s;
+            result = new List<List<Vector2>>();
+            KdTree tree = new KdTree();
+            foreach(Vector2 v in specialBuildings) {
+                tree.Insert(v);
+            }
+            List<Vector2> allNodes = tree.preOrderTraversal(tree.root);
+            Console.WriteLine(allNodes.First().X + " " + allNodes.First().Y);
+            foreach(Tuple<Vector2, float> house in housesAndDistances) {
+                List<Vector2> buildingsInRange = new List<Vector2>();
+                foreach (Vector2 specialBuilding in allNodes) {
+                    if (Vector2.Distance(house.Item1, specialBuilding) <= house.Item2) {
+                        buildingsInRange.Add(specialBuilding);
+                    }
+                }
+                Console.WriteLine("BuildingInRange count " + buildingsInRange.Count());
+                result.Add(buildingsInRange);
+            }
+            Console.WriteLine("result count: "+ result.Count());
+            return result;
         }
 
         private static IEnumerable<Tuple<Vector2, Vector2>> FindRoute(Vector2 startingBuilding,
           Vector2 destinationBuilding, IEnumerable<Tuple<Vector2, Vector2>> roads) {
-            var startingRoad = roads.Where(x => x.Item1.Equals(startingBuilding)).First();
-            List<Tuple<Vector2, Vector2>> fakeBestPath = new List<Tuple<Vector2, Vector2>>() { startingRoad };
-            var prevRoad = startingRoad;
-            for (int i = 0; i < 30; i++) {
-                prevRoad = (roads.Where(x => x.Item1.Equals(prevRoad.Item2)).OrderBy(x => Vector2.Distance(x.Item2, destinationBuilding)).First());
-                fakeBestPath.Add(prevRoad);
+            List<Tuple<Vector2, Vector2>> bestPath = new List<Tuple<Vector2, Vector2>>();
+            Dictionary<Vector2, double> distance = new Dictionary<Vector2, double>();
+            List<Vector2> previous = new List<Vector2>();
+            List<Vector2> vertices = new List<Vector2>();
+            
+            foreach (Tuple<Vector2, Vector2> tuple in roads) {
+                if (!vertices.Contains(tuple.Item1))
+                    vertices.Add(tuple.Item1);
+                if (!vertices.Contains(tuple.Item2))
+                    vertices.Add(tuple.Item2);
             }
-            return fakeBestPath;
+
+            foreach (Vector2 v in vertices) {
+                distance.Add(v, Double.PositiveInfinity);
+            }
+
+            distance[startingBuilding] = 0;
+
+            while(vertices.Any()) {
+                Dictionary<Vector2, double> tempDistance = new Dictionary<Vector2, double>();
+                foreach(Vector2 v in vertices) {
+                    tempDistance.Add(v, distance[v]);
+                }
+                double minDistance = tempDistance.Values.Min();
+
+                Vector2 u = distance.Where(x => x.Value == minDistance).Select(x => x.Key).FirstOrDefault();
+                foreach(Vector2 v in vertices) {
+                    if (v.Equals(u)) {
+                        vertices.Remove(v);
+                        Console.WriteLine("Vector removed");
+                        break;
+                    }
+                }
+
+                if (u.Equals(destinationBuilding)) {
+                    break;
+                }
+
+                List<Vector2> neighbors = GetNeighbors(u, roads);
+                foreach (Vector2 v in neighbors) {
+                    double altDistance = distance[u] + Vector2.Distance(u, v);
+                    if (altDistance < distance[v]) {
+                        distance[v] = altDistance;
+                        previous.Add(u);
+                    }
+                }
+            }
+            Console.WriteLine(previous.Count);
+            previous.Reverse();
+
+            for(int i = 0; i < previous.Count() -1; i++) {
+                bestPath.Add(new Tuple<Vector2, Vector2>(previous[i], previous[i + 1]));
+            }
+            Console.WriteLine(bestPath.Count);
+            return bestPath;
         }
 
         private static IEnumerable<IEnumerable<Tuple<Vector2, Vector2>>> FindRoutesToAll(Vector2 startingBuilding,
@@ -121,6 +187,16 @@ namespace EntryPoint {
             while (tempPointer < tempArray.Length && pointerLeft <= endIndex) {
                 specialBuildingsList[pointerLeft++] = tempArray[tempPointer++];
             }
+        }
+
+        private static List<Vector2> GetNeighbors(Vector2 v, IEnumerable<Tuple<Vector2, Vector2>> t) {
+            List<Vector2> neighbors = new List<Vector2>();
+            foreach (Tuple<Vector2, Vector2> tuple in t) {
+                if (tuple.Item1.Equals(v)) {
+                    neighbors.Add(tuple.Item2);
+                }
+            }
+            return neighbors;
         }
     }
 #endif

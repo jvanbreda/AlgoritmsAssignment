@@ -65,13 +65,16 @@ namespace EntryPoint {
           Vector2 destinationBuilding, IEnumerable<Tuple<Vector2, Vector2>> roads) {
             List<Tuple<Vector2, Vector2>> bestPath = new List<Tuple<Vector2, Vector2>>(); 
             List<Vector2> allNodes = GetAllNodes(roads);
+            
             Dictionary<Vector2, DijkstraMatrix> infoMatrix = new Dictionary<Vector2, DijkstraMatrix>();
 
             foreach (Vector2 node in allNodes)
-                infoMatrix.Add(node, new DijkstraMatrix(false, Double.PositiveInfinity, new Vector2(-1, -1)));
+                infoMatrix.Add(node, new DijkstraMatrix(false, Double.PositiveInfinity, new Vector2(float.NegativeInfinity, float.NegativeInfinity)));
+            
             infoMatrix[startingBuilding].cost = 0;
             Vector2 current = startingBuilding;
-            while (!infoMatrix[current].previous.Equals(destinationBuilding)) { 
+
+            while (!current.Equals(destinationBuilding)) { 
                 infoMatrix[current].visited = true;
                 List<Vector2> neighbors = GetNeighbors(current, roads);
                 foreach(Vector2 neighbor in neighbors) {
@@ -89,16 +92,16 @@ namespace EntryPoint {
                 }
             }
 
-            Vector2 previous = infoMatrix[current].previous;
             List<Vector2> path = new List<Vector2>();
-            while (previous.X != -1 && previous.Y != -1) {
-                path.Add(infoMatrix[previous].previous);
+            path.Add(current);
+            Vector2 previous = infoMatrix[current].previous;
+            while (previous.X != float.NegativeInfinity && previous.Y != float.NegativeInfinity) {
+                path.Add(previous);
                 previous = infoMatrix[previous].previous;
             }
-
             path.Reverse();
 
-            for (int i = 0; i < path.Count - 1; i++)
+            for (int i = 0; i < path.Count() - 1; i++)
                 bestPath.Add(new Tuple<Vector2, Vector2>(path[i], path[i + 1]));
 
             return bestPath;

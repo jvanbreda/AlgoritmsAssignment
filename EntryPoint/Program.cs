@@ -63,61 +63,47 @@ namespace EntryPoint {
 
         private static IEnumerable<Tuple<Vector2, Vector2>> FindRoute(Vector2 startingBuilding,
           Vector2 destinationBuilding, IEnumerable<Tuple<Vector2, Vector2>> roads) {
-            List<Tuple<Vector2, Vector2>> bestPath = new List<Tuple<Vector2, Vector2>>();
-            Dictionary<Vector2, double> distance = new Dictionary<Vector2, double>();
-            List<Vector2> previous = new List<Vector2>();
-            List<Vector2> vertices = new List<Vector2>();
-            
-            foreach (Tuple<Vector2, Vector2> tuple in roads) {
-                if (!vertices.Contains(tuple.Item1))
-                    vertices.Add(tuple.Item1);
-                if (!vertices.Contains(tuple.Item2))
-                    vertices.Add(tuple.Item2);
-            }
+            List<Tuple<Vector2, Vector2>> bestPath = new List<Tuple<Vector2, Vector2>>(); 
+            List<Vector2> allNodes = GetAllNodes(roads);
+            Dictionary<Vector2, DijkstraMatrix> infoMatrix = new Dictionary<Vector2, DijkstraMatrix>();
 
-            foreach (Vector2 v in vertices) {
-                distance.Add(v, Double.PositiveInfinity);
-            }
-
-            distance[startingBuilding] = 0;
-
-            while(vertices.Any()) {
-                Dictionary<Vector2, double> tempDistance = new Dictionary<Vector2, double>();
-                foreach(Vector2 v in vertices) {
-                    tempDistance.Add(v, distance[v]);
-                }
-                double minDistance = tempDistance.Values.Min();
-
-                Vector2 u = distance.Where(x => x.Value == minDistance).Select(x => x.Key).FirstOrDefault();
-                foreach(Vector2 v in vertices) {
-                    if (v.Equals(u)) {
-                        vertices.Remove(v);
-                        Console.WriteLine("Vector removed");
-                        break;
+            foreach (Vector2 node in allNodes)
+                infoMatrix.Add(node, new DijkstraMatrix(false, Double.PositiveInfinity, new Vector2(-1, -1)));
+            infoMatrix[startingBuilding].cost = 0;
+            Vector2 current = startingBuilding;
+            while (!infoMatrix[current].previous.Equals(destinationBuilding)) { 
+                infoMatrix[current].visited = true;
+                List<Vector2> neighbors = GetNeighbors(current, roads);
+                foreach(Vector2 neighbor in neighbors) {
+                    double altDistance = infoMatrix[current].cost + Vector2.Distance(current, neighbor);
+                    if (altDistance < infoMatrix[neighbor].cost) {
+                        infoMatrix[neighbor].cost = altDistance;
+                        infoMatrix[neighbor].previous = current;
                     }
                 }
-
-                if (u.Equals(destinationBuilding)) {
-                    break;
-                }
-
-                List<Vector2> neighbors = GetNeighbors(u, roads);
-                foreach (Vector2 v in neighbors) {
-                    double altDistance = distance[u] + Vector2.Distance(u, v);
-                    if (altDistance < distance[v]) {
-                        distance[v] = altDistance;
-                        previous.Add(u);
-                    }
+                List<Vector2> unvisitedNodes = infoMatrix.Where(x => x.Value.visited == false).Select(x => x.Key).ToList();
+                current = infoMatrix.Where(x => x.Key == unvisitedNodes[0]).Select(x => x.Key).First();
+                foreach(Vector2 node in unvisitedNodes) {
+                    if (infoMatrix[node].visited == false && infoMatrix[node].cost < infoMatrix[current].cost)
+                        current = node;
                 }
             }
-            Console.WriteLine(previous.Count);
-            previous.Reverse();
 
-            for(int i = 0; i < previous.Count() -1; i++) {
-                bestPath.Add(new Tuple<Vector2, Vector2>(previous[i], previous[i + 1]));
+            Vector2 previous = infoMatrix[current].previous;
+            List<Vector2> path = new List<Vector2>();
+            while (previous.X != -1 && previous.Y != -1) {
+                path.Add(infoMatrix[previous].previous);
+                previous = infoMatrix[previous].previous;
             }
-            Console.WriteLine(bestPath.Count);
+
+            path.Reverse();
+
+            for (int i = 0; i < path.Count - 1; i++)
+                bestPath.Add(new Tuple<Vector2, Vector2>(path[i], path[i + 1]));
+
             return bestPath;
+
+
         }
 
         private static IEnumerable<IEnumerable<Tuple<Vector2, Vector2>>> FindRoutesToAll(Vector2 startingBuilding,
@@ -178,6 +164,17 @@ namespace EntryPoint {
             while (tempPointer < tempArray.Length && pointerLeft <= endIndex) {
                 specialBuildingsList[pointerLeft++] = tempArray[tempPointer++];
             }
+        }
+
+        public static List<Vector2> GetAllNodes(IEnumerable<Tuple<Vector2, Vector2>> list) {
+            List<Vector2> allNodes = new List<Vector2>();
+            foreach(Tuple<Vector2, Vector2> tuple in list) {
+                if (!allNodes.Contains(tuple.Item1))
+                    allNodes.Add(tuple.Item1);
+                if (!allNodes.Contains(tuple.Item2))
+                    allNodes.Add(tuple.Item2);
+            }
+            return allNodes;
         }
 
         private static List<Vector2> GetNeighbors(Vector2 v, IEnumerable<Tuple<Vector2, Vector2>> t) {

@@ -87,11 +87,11 @@ namespace EntryPoint {
             List<Tuple<Vector2, Vector2>> bestPath = new List<Tuple<Vector2, Vector2>>();
             double[][] adjacencyMatrix = GetAdjancencyMatrix(roads);
             
-            Dictionary<Vector2, DijkstraMatrix> infoMatrix = new Dictionary<Vector2, DijkstraMatrix>();
+            Dictionary<Vector2, DijkstraInfo> infoMatrix = new Dictionary<Vector2, DijkstraInfo>();
 
             // For each vector2, we keep some information: if the node is visited, the distance from the source node, and the previous node.
             foreach (Vector2 key in idDictionary.Keys)
-                infoMatrix.Add(key, new DijkstraMatrix(false, Double.PositiveInfinity, new Vector2(float.NegativeInfinity, float.NegativeInfinity)));
+                infoMatrix.Add(key, new DijkstraInfo(false, Double.PositiveInfinity, new Vector2(float.NegativeInfinity, float.NegativeInfinity)));
 
             infoMatrix[startingBuilding].cost = 0;
             Vector2 current = startingBuilding;

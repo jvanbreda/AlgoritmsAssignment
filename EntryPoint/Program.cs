@@ -8,6 +8,7 @@ namespace EntryPoint {
     public static class Program {
         static List<Vector2> specialBuildingsList;
         static List<List<Vector2>> result;
+        static Dictionary<Vector2, int> idDictionary;
         [STAThread]
         static void Main() {
             var fullscreen = false;
@@ -35,12 +36,25 @@ namespace EntryPoint {
             goto read_input;
         }
 
+        /// <summary>
+        /// Calls the method which is needed to initiate the merge sort
+        /// </summary>
+        /// <param name="house"></param>
+        /// <param name="specialBuildings"></param>
+        /// <returns></returns>
         private static IEnumerable<Vector2> SortSpecialBuildingsByDistance(Vector2 house, IEnumerable<Vector2> specialBuildings) {
             specialBuildingsList = specialBuildings.ToList();
             MergeSort(specialBuildingsList, house, 0, specialBuildingsList.Count -1);
             return specialBuildingsList;
         }
 
+        /// <summary>
+        /// Creates a tree, stores every node in the tree accordingly
+        /// Then traverses the tree pre-order and finds all the buildings within a given distance
+        /// </summary>
+        /// <param name="specialBuildings"></param>
+        /// <param name="housesAndDistances"></param>
+        /// <returns></returns>
         private static IEnumerable<IEnumerable<Vector2>> FindSpecialBuildingsWithinDistanceFromHouse(
           IEnumerable<Vector2> specialBuildings,IEnumerable<Tuple<Vector2, float>> housesAndDistances) {
             result = new List<List<Vector2>>();
@@ -61,29 +75,39 @@ namespace EntryPoint {
             return result;
         }
 
+        /// <summary>
+        /// Calculates the shortest path from a starting building to a given destination building
+        /// </summary>
+        /// <param name="startingBuilding"></param>
+        /// <param name="destinationBuilding"></param>
+        /// <param name="roads"></param>
+        /// <returns></returns>
         private static IEnumerable<Tuple<Vector2, Vector2>> FindRoute(Vector2 startingBuilding,
           Vector2 destinationBuilding, IEnumerable<Tuple<Vector2, Vector2>> roads) {
-            List<Tuple<Vector2, Vector2>> bestPath = new List<Tuple<Vector2, Vector2>>(); 
-            List<Vector2> allNodes = GetAllNodes(roads);
+            List<Tuple<Vector2, Vector2>> bestPath = new List<Tuple<Vector2, Vector2>>();
+            double[][] adjecancyMatrix = GetAdjencancyMatrix(roads);
             
             Dictionary<Vector2, DijkstraMatrix> infoMatrix = new Dictionary<Vector2, DijkstraMatrix>();
 
-            foreach (Vector2 node in allNodes)
-                infoMatrix.Add(node, new DijkstraMatrix(false, Double.PositiveInfinity, new Vector2(float.NegativeInfinity, float.NegativeInfinity)));
-            
+            // For each vector2, we keep some information: if the node is visited, the distance from the source node, and the previous node.
+            foreach (Vector2 key in idDictionary.Keys)
+                infoMatrix.Add(key, new DijkstraMatrix(false, Double.PositiveInfinity, new Vector2(float.NegativeInfinity, float.NegativeInfinity)));
+
             infoMatrix[startingBuilding].cost = 0;
             Vector2 current = startingBuilding;
 
+            //We keep searching for a new vector2 to add to the path until we reach our destination
             while (!current.Equals(destinationBuilding)) { 
                 infoMatrix[current].visited = true;
-                List<Vector2> neighbors = GetNeighbors(current, roads);
+                List<Vector2> neighbors = GetNeighbors(current, adjecancyMatrix);
                 foreach(Vector2 neighbor in neighbors) {
-                    double altDistance = infoMatrix[current].cost + Vector2.Distance(current, neighbor);
+                    double altDistance = infoMatrix[current].cost + adjecancyMatrix[idDictionary[current]][idDictionary[neighbor]];
                     if (altDistance < infoMatrix[neighbor].cost) {
                         infoMatrix[neighbor].cost = altDistance;
                         infoMatrix[neighbor].previous = current;
                     }
                 }
+                // We get all the unvisited nodes and get the one with the lowest distance 
                 List<Vector2> unvisitedNodes = infoMatrix.Where(x => x.Value.visited == false).Select(x => x.Key).ToList();
                 current = infoMatrix.Where(x => x.Key == unvisitedNodes[0]).Select(x => x.Key).First();
                 foreach(Vector2 node in unvisitedNodes) {
@@ -92,6 +116,8 @@ namespace EntryPoint {
                 }
             }
 
+            // Here, the current node is our destination. From here, we use the previous of each node to find the
+            // complete path. While a given node has a previous node, we add the previous node to the path.
             List<Vector2> path = new List<Vector2>();
             path.Add(current);
             Vector2 previous = infoMatrix[current].previous;
@@ -101,6 +127,7 @@ namespace EntryPoint {
             }
             path.Reverse();
 
+            // Using the list of vector2's, we now create a list of tuples to contruct the path
             for (int i = 0; i < path.Count() - 1; i++)
                 bestPath.Add(new Tuple<Vector2, Vector2>(path[i], path[i + 1]));
 
@@ -108,7 +135,13 @@ namespace EntryPoint {
 
 
         }
-
+        /// <summary>
+        /// Not implemented
+        /// </summary>
+        /// <param name="startingBuilding"></param>
+        /// <param name="destinationBuildings"></param>
+        /// <param name="roads"></param>
+        /// <returns></returns>
         private static IEnumerable<IEnumerable<Tuple<Vector2, Vector2>>> FindRoutesToAll(Vector2 startingBuilding,
           IEnumerable<Vector2> destinationBuildings, IEnumerable<Tuple<Vector2, Vector2>> roads) {
             List<List<Tuple<Vector2, Vector2>>> result = new List<List<Tuple<Vector2, Vector2>>>();
@@ -125,6 +158,13 @@ namespace EntryPoint {
             return result;
         }
 
+        /// <summary>
+        /// Keeps splitting the array in half until each element of the original array is in a seperate array
+        /// </summary>
+        /// <param name="specialBuildingsList"></param>
+        /// <param name="house"></param>
+        /// <param name="beginIndex"></param>
+        /// <param name="endIndex"></param>
         private static void MergeSort(List<Vector2> specialBuildingsList, Vector2 house, int beginIndex, int endIndex) {
             int middleIndex;
             if (beginIndex < endIndex) {
@@ -135,6 +175,14 @@ namespace EntryPoint {
             }
         }
 
+        /// <summary>
+        /// Merges the given 'two' arrays (actually one array with two pointers) to one sorted array
+        /// </summary>
+        /// <param name="specialBuildingsList"></param>
+        /// <param name="house"></param>
+        /// <param name="beginIndex"></param>
+        /// <param name="middleIndex"></param>
+        /// <param name="endIndex"></param>
         private static void Merge(List<Vector2> specialBuildingsList, Vector2 house, int beginIndex, int middleIndex, int endIndex) {
             Vector2[] tempArray = new Vector2[endIndex - beginIndex + 1];
 
@@ -169,23 +217,57 @@ namespace EntryPoint {
             }
         }
 
-        public static List<Vector2> GetAllNodes(IEnumerable<Tuple<Vector2, Vector2>> list) {
-            List<Vector2> allNodes = new List<Vector2>();
-            foreach(Tuple<Vector2, Vector2> tuple in list) {
-                if (!allNodes.Contains(tuple.Item1))
-                    allNodes.Add(tuple.Item1);
-                if (!allNodes.Contains(tuple.Item2))
-                    allNodes.Add(tuple.Item2);
+        /// <summary>
+        /// Constructs the adjecancy matrix by checking every tuple in the roads List.
+        /// Also, a dictionary is made to keep track of which vector2 belongs to which row and column
+        /// </summary>
+        /// <param name="list"></param>
+        /// <returns></returns>
+        public static double[][] GetAdjencancyMatrix(IEnumerable<Tuple<Vector2, Vector2>> list) {
+            List<Tuple<Vector2, Vector2>> listCopy = list.ToList();
+            idDictionary = new Dictionary<Vector2, int>();
+            int counter = 0;
+            foreach(Tuple<Vector2, Vector2> t in listCopy) {
+                if (!idDictionary.ContainsKey(t.Item1))
+                    idDictionary.Add(t.Item1, counter++);
+                if (!idDictionary.ContainsKey(t.Item2))
+                    idDictionary.Add(t.Item2, counter++);
             }
-            return allNodes;
+            
+             
+            double[][] adjecancyMatrix = new double[listCopy.Count()][];
+            for (int i = 0; i < list.Count(); i++) {
+                adjecancyMatrix[i] = new double[listCopy.Count()];
+            }
+
+
+            for(int i = 0; i < listCopy.Count(); i++) {
+                for(int j = 0; j < listCopy.Count(); j++) {
+                    adjecancyMatrix[i][j] = 0.0;
+                }
+            }
+            foreach(Tuple<Vector2, Vector2> t in listCopy) {
+                int column = idDictionary[t.Item1];
+                int row = idDictionary[t.Item2];
+                adjecancyMatrix[column][row] = Vector2.Distance(t.Item1, t.Item2);
+            }
+            return adjecancyMatrix;
         }
 
-        private static List<Vector2> GetNeighbors(Vector2 v, IEnumerable<Tuple<Vector2, Vector2>> t) {
+        /// <summary>
+        /// Gets the neighbors of the given vector2 by checking the adjecancy matrix
+        /// If the number on the checked row/column combination is not equal to 0, there is a connection between 
+        /// the two vector2's
+        /// </summary>
+        /// <param name="v"></param>
+        /// <param name="adjecancyMatrix"></param>
+        /// <returns></returns>
+        private static List<Vector2> GetNeighbors(Vector2 v, double[][] adjecancyMatrix) {
             List<Vector2> neighbors = new List<Vector2>();
-            foreach (Tuple<Vector2, Vector2> tuple in t) {
-                if (tuple.Item1.Equals(v)) {
-                    neighbors.Add(tuple.Item2);
-                }
+            double[] row = adjecancyMatrix[idDictionary[v]];
+            for (int i = 0; i < row.Length; i++) {
+                if (row[i] != 0.0)
+                    neighbors.Add(idDictionary.Where(x => x.Value == i).Select(x => x.Key).First());
             }
             return neighbors;
         }

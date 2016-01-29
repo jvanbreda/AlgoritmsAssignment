@@ -85,7 +85,7 @@ namespace EntryPoint {
         private static IEnumerable<Tuple<Vector2, Vector2>> FindRoute(Vector2 startingBuilding,
           Vector2 destinationBuilding, IEnumerable<Tuple<Vector2, Vector2>> roads) {
             List<Tuple<Vector2, Vector2>> bestPath = new List<Tuple<Vector2, Vector2>>();
-            double[][] adjecancyMatrix = GetAdjencancyMatrix(roads);
+            double[][] adjacencyMatrix = GetAdjancencyMatrix(roads);
             
             Dictionary<Vector2, DijkstraMatrix> infoMatrix = new Dictionary<Vector2, DijkstraMatrix>();
 
@@ -99,9 +99,9 @@ namespace EntryPoint {
             //We keep searching for a new vector2 to add to the path until we reach our destination
             while (!current.Equals(destinationBuilding)) { 
                 infoMatrix[current].visited = true;
-                List<Vector2> neighbors = GetNeighbors(current, adjecancyMatrix);
+                List<Vector2> neighbors = GetNeighbors(current, adjacencyMatrix);
                 foreach(Vector2 neighbor in neighbors) {
-                    double altDistance = infoMatrix[current].cost + adjecancyMatrix[idDictionary[current]][idDictionary[neighbor]];
+                    double altDistance = infoMatrix[current].cost + adjacencyMatrix[idDictionary[current]][idDictionary[neighbor]];
                     if (altDistance < infoMatrix[neighbor].cost) {
                         infoMatrix[neighbor].cost = altDistance;
                         infoMatrix[neighbor].previous = current;
@@ -218,12 +218,12 @@ namespace EntryPoint {
         }
 
         /// <summary>
-        /// Constructs the adjecancy matrix by checking every tuple in the roads List.
+        /// Constructs the adjacency matrix by checking every tuple in the roads List.
         /// Also, a dictionary is made to keep track of which vector2 belongs to which row and column
         /// </summary>
         /// <param name="list"></param>
         /// <returns></returns>
-        public static double[][] GetAdjencancyMatrix(IEnumerable<Tuple<Vector2, Vector2>> list) {
+        public static double[][] GetAdjancencyMatrix(IEnumerable<Tuple<Vector2, Vector2>> list) {
             List<Tuple<Vector2, Vector2>> listCopy = list.ToList();
             idDictionary = new Dictionary<Vector2, int>();
             int counter = 0;
@@ -235,36 +235,36 @@ namespace EntryPoint {
             }
             
              
-            double[][] adjecancyMatrix = new double[listCopy.Count()][];
+            double[][] adjacencyMatrix = new double[listCopy.Count()][];
             for (int i = 0; i < list.Count(); i++) {
-                adjecancyMatrix[i] = new double[listCopy.Count()];
+                adjacencyMatrix[i] = new double[listCopy.Count()];
             }
 
 
             for(int i = 0; i < listCopy.Count(); i++) {
                 for(int j = 0; j < listCopy.Count(); j++) {
-                    adjecancyMatrix[i][j] = 0.0;
+                    adjacencyMatrix[i][j] = 0.0;
                 }
             }
             foreach(Tuple<Vector2, Vector2> t in listCopy) {
                 int column = idDictionary[t.Item1];
                 int row = idDictionary[t.Item2];
-                adjecancyMatrix[column][row] = Vector2.Distance(t.Item1, t.Item2);
+                adjacencyMatrix[column][row] = Vector2.Distance(t.Item1, t.Item2);
             }
-            return adjecancyMatrix;
+            return adjacencyMatrix;
         }
 
         /// <summary>
-        /// Gets the neighbors of the given vector2 by checking the adjecancy matrix
+        /// Gets the neighbors of the given vector2 by checking the adjacency matrix
         /// If the number on the checked row/column combination is not equal to 0, there is a connection between 
         /// the two vector2's
         /// </summary>
         /// <param name="v"></param>
-        /// <param name="adjecancyMatrix"></param>
+        /// <param name="adjacencyMatrix"></param>
         /// <returns></returns>
-        private static List<Vector2> GetNeighbors(Vector2 v, double[][] adjecancyMatrix) {
+        private static List<Vector2> GetNeighbors(Vector2 v, double[][] adjacencyMatrix) {
             List<Vector2> neighbors = new List<Vector2>();
-            double[] row = adjecancyMatrix[idDictionary[v]];
+            double[] row = adjacencyMatrix[idDictionary[v]];
             for (int i = 0; i < row.Length; i++) {
                 if (row[i] != 0.0)
                     neighbors.Add(idDictionary.Where(x => x.Value == i).Select(x => x.Key).First());

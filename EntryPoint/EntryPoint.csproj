@@ -42,7 +42,7 @@
     <ApplicationIcon>Icon.ico</ApplicationIcon>
   </PropertyGroup>
   <ItemGroup>
-    <Compile Include="DijkstraMatrix.cs" />
+    <Compile Include="DijkstraInfo.cs" />
     <Compile Include="KdTree.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
